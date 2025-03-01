@@ -28,7 +28,7 @@ body {
     width: 350px;
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Added box shadow */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     padding: 20px;
 }
 
@@ -39,8 +39,8 @@ body {
 }
 
 .header-box img {
-    width: 100%; /* Image fills the header box */
-    height: auto; /* Maintain aspect ratio */
+    width: 100%;
+    height: auto;
     border-radius: 8px;
     object-fit: contain;
     margin-bottom: 10px;
@@ -74,7 +74,7 @@ button {
 }
 
 #result img {
-    width: 100%; /* Image fills the result div */
+    width: 100%;
     height: auto;
     border-radius: 8px;
     object-fit: contain;
@@ -119,13 +119,17 @@ async function checkToken() {
             resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
             headerImage.src = "placeholder.png";
         } else {
-            resultDiv.innerHTML = `<img src="${data.profile_picture}" alt="Profile Picture">`;
+            resultDiv.innerHTML = `
+                <img src="${data.profile_picture}" alt="Profile Picture">
+                <p>Thread ID: ${data.thread_id}</p>
+                <p>Date of Birth: ${data.birthday}</p>
+            `;
             headerImage.src = data.profile_picture;
         }
     } catch (error) {
         console.error("Error:", error);
         resultDiv.innerHTML = "<p style='color:red;'>An error occurred.</p>";
-        headerImage.src = "https://i.ibb.co/LzDWK38f/20250214-193025.jpg";
+        headerImage.src = "placeholder.png";
     }
 }
 </script>
