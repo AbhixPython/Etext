@@ -1,121 +1,134 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SERVERX END TO END</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #e0c2ff, #c2e0ff);
-        }
+<title>Facebook Token Checker</title>
+<style>
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background: linear-gradient(to right, purple, indigo, blue, cyan, green, yellow, orange, red, purple);
+    background-size: 800% 100%;
+    animation: backgroundAnimation 20s linear infinite;
+}
 
-        #header {
-            width: 100%;
-            text-align: center;
-            padding: 20px 0;
-            background-color: #e6e6fa;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+@keyframes backgroundAnimation {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 0%;
+    }
+}
 
-        #header img {
-            max-width: 300px; /* Further increased image size */
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+.container {
+    width: 350px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Added box shadow */
+    padding: 20px;
+}
 
-        #container {
-            width: 80%;
-            max-width: 600px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-        }
+.header-box {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
 
-        label, input, textarea, button, input[type="file"] {
-            display: block;
-            width: calc(100% - 22px);
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
+.header-box img {
+    width: 100%; /* Image fills the header box */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 8px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
 
-        button {
-            background-color: #1877f2;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+.input-box {
+    padding: 20px;
+}
 
-        button:hover {
-            background-color: #166fe5;
-        }
-    </style>
+input[type="text"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4267B2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#result {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#result img {
+    width: 100%; /* Image fills the result div */
+    height: auto;
+    border-radius: 8px;
+    object-fit: contain;
+    margin-top: 10px;
+}
+
+</style>
 </head>
 <body>
-    <div id="header">
-        <img src="https://i.ibb.co/qL51RrwR/20250301-192212.jpg" alt="Messenger Logo">
+
+<div class="container">
+    <div class="header-box">
+        <img id="headerImage" src="https://i.ibb.co/LzDWK38f/20250214-193025.jpg" alt="Placeholder Image">
+        <div id="result"></div>
     </div>
-    <div id="container">
-        <label for="appstate">Facebook Appstate:</label>
-        <textarea id="appstate"></textarea>
-
-        <label for="convo_tid">Conversation Thread IDs (comma-separated):</label>
-        <textarea id="convo_tid"></textarea>
-
-        <label for="time_delay">Time Delay (seconds):</label>
-        <input type="number" id="time_delay" value="1">
-
-        <label for="hater_name">Hater Name (optional):</label>
-        <input type="text" id="hater_name">
-
-        <label for="abuse_file">Abuse File:</label>
-        <input type="file" id="abuse_file" required>
-
-        <button id="sendButton">Start Sending Files</button>
+    <div class="input-box">
+        <input type="text" id="accessToken" placeholder="Enter Facebook Access Token">
+        <button onclick="checkToken()">Check Token</button>
     </div>
 
-    <script>
-        document.getElementById('sendButton').addEventListener('click', function() {
-            const appstate = document.getElementById('appstate').value;
-            const convoTids = document.getElementById('convo_tid').value.split(',').map(tid => tid.trim());
-            const timeDelay = parseFloat(document.getElementById('time_delay').value);
-            const haterName = document.getElementById('hater_name').value;
-            const abuseFile = document.getElementById('abuse_file').files[0];
+</div>
 
-            sendFiles(appstate, convoTids, timeDelay, haterName, abuseFile);
+<script>
+async function checkToken() {
+    const accessToken = document.getElementById('accessToken').value;
+    const resultDiv = document.getElementById('result');
+    const headerImage = document.getElementById('headerImage');
+    resultDiv.innerHTML = "Checking...";
+
+    try {
+        const response = await fetch('/check_token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ access_token: accessToken })
         });
 
-        async function sendFiles(appstate, convoTids, timeDelay, haterName, abuseFile) {
-            try {
-                const formData = new FormData();
-                formData.append('appstate', appstate);
-                formData.append('convo_tids', JSON.stringify(convoTids));
-                formData.append('time_delay', timeDelay);
-                formData.append('hater_name', haterName);
-                formData.append('abuse_file', abuseFile);
+        const data = await response.json();
 
-                const response = await fetch('/send_files', {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                const result = await response.json();
-                console.log(result);
-                alert(result.message);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred.');
-            }
+        if (data.error) {
+            resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+            headerImage.src = "placeholder.png";
+        } else {
+            resultDiv.innerHTML = `<img src="${data.profile_picture}" alt="Profile Picture">`;
+            headerImage.src = data.profile_picture;
         }
-    </script>
+    } catch (error) {
+        console.error("Error:", error);
+        resultDiv.innerHTML = "<p style='color:red;'>An error occurred.</p>";
+        headerImage.src = "https://i.ibb.co/LzDWK38f/20250214-193025.jpg";
+    }
+}
+</script>
+
 </body>
 </html>
