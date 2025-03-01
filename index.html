@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SERVERX END TO END</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #e0c2ff, #c2e0ff);
+        }
+
+        #header {
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            background-color: #e6e6fa;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #header img {
+            max-width: 300px; /* Further increased image size */
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #container {
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        label, input, textarea, button, input[type="file"] {
+            display: block;
+            width: calc(100% - 22px);
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #166fe5;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <img src="https://i.ibb.co/qL51RrwR/20250301-192212.jpg" alt="Messenger Logo">
+    </div>
+    <div id="container">
+        <label for="appstate">Facebook Appstate:</label>
+        <textarea id="appstate"></textarea>
+
+        <label for="convo_tid">Conversation Thread IDs (comma-separated):</label>
+        <textarea id="convo_tid"></textarea>
+
+        <label for="time_delay">Time Delay (seconds):</label>
+        <input type="number" id="time_delay" value="1">
+
+        <label for="hater_name">Hater Name (optional):</label>
+        <input type="text" id="hater_name">
+
+        <label for="abuse_file">Abuse File:</label>
+        <input type="file" id="abuse_file" required>
+
+        <button id="sendButton">Start Sending Files</button>
+    </div>
+
+    <script>
+        document.getElementById('sendButton').addEventListener('click', function() {
+            const appstate = document.getElementById('appstate').value;
+            const convoTids = document.getElementById('convo_tid').value.split(',').map(tid => tid.trim());
+            const timeDelay = parseFloat(document.getElementById('time_delay').value);
+            const haterName = document.getElementById('hater_name').value;
+            const abuseFile = document.getElementById('abuse_file').files[0];
+
+            sendFiles(appstate, convoTids, timeDelay, haterName, abuseFile);
+        });
+
+        async function sendFiles(appstate, convoTids, timeDelay, haterName, abuseFile) {
+            try {
+                const formData = new FormData();
+                formData.append('appstate', appstate);
+                formData.append('convo_tids', JSON.stringify(convoTids));
+                formData.append('time_delay', timeDelay);
+                formData.append('hater_name', haterName);
+                formData.append('abuse_file', abuseFile);
+
+                const response = await fetch('/send_files', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+                console.log(result);
+                alert(result.message);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred.');
+            }
+        }
+    </script>
+</body>
+</html>
